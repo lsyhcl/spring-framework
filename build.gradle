@@ -34,6 +34,7 @@ configure(allprojects) {
 	test.systemProperty("java.awt.headless", "true")
 
 	repositories {
+		maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
 		maven { url "http://repo.springsource.org/libs-release" }
 		maven { url "http://repo.springsource.org/ebr-maven-external" }
 	}
