@@ -256,6 +256,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected EntityResolver getEntityResolver() {
 		if (this.entityResolver == null) {
 			// Determine default EntityResolver to use.
+			// xmlBeanFactory进来时,在初始化xmlBeanDefinitionReader时初始化了resourceLoader，PathMatchingResourcePatternResolver
 			ResourceLoader resourceLoader = getResourceLoader();
 			if (resourceLoader != null) {
 				this.entityResolver = new ResourceEntityResolver(resourceLoader);
@@ -423,8 +424,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see DocumentLoader#loadDocument
 	 */
 	protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
+		//获取完验证模式后，托付给DefaultDocumentLoader
+		/*entityResolver的作用是项目本身可以提供一个如何去寻找DTD声明的方法*/
 		return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
-				getValidationModeForResource(resource), isNamespaceAware());
+				/*获取xml的验证模式*/getValidationModeForResource(resource), isNamespaceAware());
 	}
 
 
@@ -434,12 +437,16 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * {@link #detectValidationMode detected}.
 	 * <p>Override this method if you would like full control over the validation
 	 * mode, even when something other than {@link #VALIDATION_AUTO} was set.
+	 * 获取xml的验证模式
 	 */
+	//
 	protected int getValidationModeForResource(Resource resource) {
+		//根据调用setValidationMode设置的值
 		int validationModeToUse = getValidationMode();
 		if (validationModeToUse != VALIDATION_AUTO) {
 			return validationModeToUse;
 		}
+		//如果没调用，则自动判断
 		int detectedMode = detectValidationMode(resource);
 		if (detectedMode != VALIDATION_AUTO) {
 			return detectedMode;
@@ -456,6 +463,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * definition then DTD validation is used otherwise XSD validation is assumed.
 	 * <p>Override this method if you would like to customize resolution
 	 * of the {@link #VALIDATION_AUTO} mode.
+	 * 自动获取xml的验证模式
 	 */
 	protected int detectValidationMode(Resource resource) {
 		if (resource.isOpen()) {
@@ -478,6 +486,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		}
 
 		try {
+			//委托给专门处理的类，XmlValidationModeDetector
 			return this.validationModeDetector.detectValidationMode(inputStream);
 		}
 		catch (IOException ex) {
