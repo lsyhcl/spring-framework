@@ -128,6 +128,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		this.delegate = createDelegate(getReaderContext(), root, parent);
 
 		if (this.delegate.isDefaultNamespace(root)) {
+			// profile 用来方便的切换不同环境的配置文件。只需要在web.xml中配置Spring.profiles.active即可
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
 			if (StringUtils.hasText(profileSpec)) {
 				String[] specifiedProfiles = StringUtils.tokenizeToStringArray(
@@ -143,6 +144,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 
 		preProcessXml(root);
+		// 这里开始真正解析
 		parseBeanDefinitions(root, this.delegate);
 		postProcessXml(root);
 
@@ -170,9 +172,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				if (node instanceof Element) {
 					Element ele = (Element) node;
 					if (delegate.isDefaultNamespace(ele)) {
+						// 解析默认的bean
 						parseDefaultElement(ele, delegate);
 					}
 					else {
+						// 解析自定义的标签bean
 						delegate.parseCustomElement(ele);
 					}
 				}
@@ -183,7 +187,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 	}
 
-	private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
+	private void  parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
 		if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
 			importBeanDefinitionResource(ele);
 		}
