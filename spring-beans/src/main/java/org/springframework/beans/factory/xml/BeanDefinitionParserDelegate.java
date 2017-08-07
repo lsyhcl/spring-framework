@@ -418,6 +418,7 @@ public class BeanDefinitionParserDelegate {
 	 */
 	@Nullable
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
+		// 1、提取元素中的id及name属性
 		// 解析id属性
 		String id = ele.getAttribute(ID_ATTRIBUTE);
 		// 解析name属性
@@ -441,9 +442,10 @@ public class BeanDefinitionParserDelegate {
 		if (containingBean == null) {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
-
+		// 2、进一步解析其他所有属性并统一封装到GenericBeanDefinition类型的实例中
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
+			// 3、如果检测到bean没有指定beanName，那么使用默认规则为此bean生成beanName
 			if (!StringUtils.hasText(beanName)) {
 				try {
 					if (containingBean != null) {
@@ -473,6 +475,7 @@ public class BeanDefinitionParserDelegate {
 				}
 			}
 			String[] aliasesArray = StringUtils.toStringArray(aliases);
+			// 4、将获取到的信息封装到BeanDefinitionHolder的实例中
 			return new BeanDefinitionHolder(beanDefinition, beanName, aliasesArray);
 		}
 
@@ -510,27 +513,35 @@ public class BeanDefinitionParserDelegate {
 
 		this.parseState.push(new BeanEntry(beanName));
 
+		// 解析class属性
 		String className = null;
 		if (ele.hasAttribute(CLASS_ATTRIBUTE)) {
 			className = ele.getAttribute(CLASS_ATTRIBUTE).trim();
 		}
+		// 解析parent属性
 		String parent = null;
 		if (ele.hasAttribute(PARENT_ATTRIBUTE)) {
 			parent = ele.getAttribute(PARENT_ATTRIBUTE);
 		}
 
 		try {
+			// 创建用于承载属性的AbstractBeanDefinition类型的GenericBeanDefinition
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
-
+			// 硬编码解析默认bean的各种属性
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
+			// 提取description
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
-
+			// 解析元数据
 			parseMetaElements(ele, bd);
+			// 解析lookup-method属性
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
+			// 解析replaced-method属性
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
-
+			// 解析构造函数属性
 			parseConstructorArgElements(ele, bd);
+			// 解析property属性
 			parsePropertyElements(ele, bd);
+			// 解析qualifier子属性
 			parseQualifierElements(ele, bd);
 
 			bd.setResource(this.readerContext.getResource());
