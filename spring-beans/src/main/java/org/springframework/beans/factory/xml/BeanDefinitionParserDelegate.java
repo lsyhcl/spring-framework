@@ -602,13 +602,17 @@ public class BeanDefinitionParserDelegate {
 		// 若没有设置或设置成其他字符都会被设置为false
 		bd.setLazyInit(TRUE_VALUE.equals(lazyInit));
 
+		// 解析autowire属性，自动注入，通过byName、byType、constructor、default等方式，默认为no
 		String autowire = ele.getAttribute(AUTOWIRE_ATTRIBUTE);
 		bd.setAutowireMode(getAutowireMode(autowire));
 
+		// dependency-check属性在3以后被移除了，用来检查属性是否漏注入。可以使用构造方法、或者@Required代替
+		// 解析depends-on属性,初始化bean a时依赖bean b
 		if (ele.hasAttribute(DEPENDS_ON_ATTRIBUTE)) {
 			String dependsOn = ele.getAttribute(DEPENDS_ON_ATTRIBUTE);
 			bd.setDependsOn(StringUtils.tokenizeToStringArray(dependsOn, MULTI_VALUE_ATTRIBUTE_DELIMITERS));
 		}
+
 
 		String autowireCandidate = ele.getAttribute(AUTOWIRE_CANDIDATE_ATTRIBUTE);
 		if ("".equals(autowireCandidate) || DEFAULT_VALUE.equals(autowireCandidate)) {
