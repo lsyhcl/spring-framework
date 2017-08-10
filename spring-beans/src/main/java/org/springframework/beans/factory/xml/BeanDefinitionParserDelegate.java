@@ -613,7 +613,7 @@ public class BeanDefinitionParserDelegate {
 			bd.setDependsOn(StringUtils.tokenizeToStringArray(dependsOn, MULTI_VALUE_ATTRIBUTE_DELIMITERS));
 		}
 
-
+		// 解析autowire-candidate，在使用自动注入，autowire时，如果设置了autowire-candidate为false，则不考虑使用这个bean，但是可以注入其他bean
 		String autowireCandidate = ele.getAttribute(AUTOWIRE_CANDIDATE_ATTRIBUTE);
 		if ("".equals(autowireCandidate) || DEFAULT_VALUE.equals(autowireCandidate)) {
 			String candidatePattern = this.defaults.getAutowireCandidates();
@@ -626,10 +626,12 @@ public class BeanDefinitionParserDelegate {
 			bd.setAutowireCandidate(TRUE_VALUE.equals(autowireCandidate));
 		}
 
+		// 解析primary 设置为true表示这个类优先被注入。比如有两个子类AB继承C，D类有属性C，A有private表示优先注入A
 		if (ele.hasAttribute(PRIMARY_ATTRIBUTE)) {
 			bd.setPrimary(TRUE_VALUE.equals(ele.getAttribute(PRIMARY_ATTRIBUTE)));
 		}
 
+		// 解析init-method，初始化bean时调用的方法。init-method="method"，表示初始化时调用method
 		if (ele.hasAttribute(INIT_METHOD_ATTRIBUTE)) {
 			String initMethodName = ele.getAttribute(INIT_METHOD_ATTRIBUTE);
 			if (!"".equals(initMethodName)) {
@@ -641,6 +643,7 @@ public class BeanDefinitionParserDelegate {
 			bd.setEnforceInitMethod(false);
 		}
 
+		// 解析destroy-method，与init-method同理，容器销毁之前调用的方法
 		if (ele.hasAttribute(DESTROY_METHOD_ATTRIBUTE)) {
 			String destroyMethodName = ele.getAttribute(DESTROY_METHOD_ATTRIBUTE);
 			bd.setDestroyMethodName(destroyMethodName);
@@ -650,6 +653,10 @@ public class BeanDefinitionParserDelegate {
 			bd.setEnforceDestroyMethod(false);
 		}
 
+
+		// B类有一个对象C的map，方法B（key）返回Map（key）的C的实例
+		// 解析factory-method和factory-bean。factory-method指定了工厂方法A，没有使用factory-bean时，使用class指向一个类B，类B初始化好Map，并使用静态A方法创建实例
+		// 与factory-bean一起用时，factory-bean指向了一个工厂类的实例，也是一个普通bean B，Bean B中有property生成实例C的map ，然后factory-bean = "B"，factory-method="A"，A是B里的一个非静态方法。并使用A创建实例
 		if (ele.hasAttribute(FACTORY_METHOD_ATTRIBUTE)) {
 			bd.setFactoryMethodName(ele.getAttribute(FACTORY_METHOD_ATTRIBUTE));
 		}
