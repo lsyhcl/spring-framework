@@ -529,9 +529,10 @@ public class BeanDefinitionParserDelegate {
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 			// 硬编码解析默认bean的各种属性，也就是bean标签里的属性"<bean scope=""/>"
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
+			// 开始解析各种子元素
 			// 提取description
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
-			// 解析元数据
+			// 解析元数据。元数据通过BeanDefinition.getAttribute（key）来获取
 			parseMetaElements(ele, bd);
 			// 解析lookup-method属性
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
@@ -682,15 +683,19 @@ public class BeanDefinitionParserDelegate {
 	}
 
 	public void parseMetaElements(Element ele, BeanMetadataAttributeAccessor attributeAccessor) {
+		// 获取当前节点的所以子元素
 		NodeList nl = ele.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
+			// 提取meta
 			if (isCandidateElement(node) && nodeNameEquals(node, META_ELEMENT)) {
 				Element metaElement = (Element) node;
+				// 使用key、value构造BeanMetadataAttribute
 				String key = metaElement.getAttribute(KEY_ATTRIBUTE);
 				String value = metaElement.getAttribute(VALUE_ATTRIBUTE);
 				BeanMetadataAttribute attribute = new BeanMetadataAttribute(key, value);
 				attribute.setSource(extractSource(metaElement));
+				// 记录到BeanDefinition中
 				attributeAccessor.addMetadataAttribute(attribute);
 			}
 		}

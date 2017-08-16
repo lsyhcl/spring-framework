@@ -3,7 +3,12 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-       <bean id="myTestBean" class="com.tr.MyTestBean" scope="singleton">
-		   <property name="testStr" value="hh"></property>
+       <bean id="myTestBean" class="com.tr.MyTestBean" scope="singleton" autowire="byName">
+		   <property name="testStr" value="hh"/>
+		   <meta key="hh" value="ee"/>
+	   </bean>
+
+	   <bean id="userz" class="com.tr.domain.User" >
+
 	   </bean>
 </beans>
