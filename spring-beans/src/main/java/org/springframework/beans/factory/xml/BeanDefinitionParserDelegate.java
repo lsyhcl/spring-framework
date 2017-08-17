@@ -534,7 +534,7 @@ public class BeanDefinitionParserDelegate {
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 			// 解析元数据。元数据通过BeanDefinition.getAttribute（key）来获取
 			parseMetaElements(ele, bd);
-			// 解析lookup-method属性
+			// 解析lookup-method属性。通过设置lookup-method，可以通过bean来设置方法返回的对象。比如A方法返回B对象，可以设置lookup-method name=A，bean=B子类的bean
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
 			// 解析replaced-method属性
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
