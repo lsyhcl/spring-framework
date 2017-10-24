@@ -536,9 +536,9 @@ public class BeanDefinitionParserDelegate {
 			parseMetaElements(ele, bd);
 			// 解析lookup-method属性。通过设置lookup-method，可以通过bean来设置方法返回的对象。比如A方法返回B对象，可以设置lookup-method name=A，bean=B子类的bean
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
-			// 解析replaced-method属性
+			// 解析replaced-method属性。通过设置replaced-method，可以通过replacer来设置新的对象，对象要继承MethodReplacer。
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
-			// 解析构造函数属性
+			// 解析构造函数属性。
 			parseConstructorArgElements(ele, bd);
 			// 解析property属性
 			parsePropertyElements(ele, bd);
@@ -772,7 +772,9 @@ public class BeanDefinitionParserDelegate {
 			Node node = nl.item(i);
 			if (isCandidateElement(node) && nodeNameEquals(node, LOOKUP_METHOD_ELEMENT)) {
 				Element ele = (Element) node;
+				//获取要修饰的方法
 				String methodName = ele.getAttribute(NAME_ATTRIBUTE);
+				//获取返回配置的bean
 				String beanRef = ele.getAttribute(BEAN_ELEMENT);
 				LookupOverride override = new LookupOverride(methodName, beanRef);
 				override.setSource(extractSource(ele));
@@ -788,12 +790,16 @@ public class BeanDefinitionParserDelegate {
 		NodeList nl = beanEle.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
+			// 仅当在Spring默认bean的子元素下且为<replaced-method时有效
 			if (isCandidateElement(node) && nodeNameEquals(node, REPLACED_METHOD_ELEMENT)) {
 				Element replacedMethodEle = (Element) node;
+				// 要替换的旧的方法
 				String name = replacedMethodEle.getAttribute(NAME_ATTRIBUTE);
+				// 提取对应的新的替换方法
 				String callback = replacedMethodEle.getAttribute(REPLACER_ATTRIBUTE);
 				ReplaceOverride replaceOverride = new ReplaceOverride(name, callback);
 				// Look for arg-type match elements.
+				// 记录参数
 				List<Element> argTypeEles = DomUtils.getChildElementsByTagName(replacedMethodEle, ARG_TYPE_ELEMENT);
 				for (Element argTypeEle : argTypeEles) {
 					String match = argTypeEle.getAttribute(ARG_TYPE_MATCH_ATTRIBUTE);
